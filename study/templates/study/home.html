@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teach Me</title>
+</head>
+<body>
+
+    <main>
+        <h1>Teach Me</h1>
+
+        <span>
+            {{ mode|upper }} ·
+            {% if mode == 'demo' %}
+                дайын мысал
+            {% else %}
+                нақты режим
+            {% endif %}
+        </span>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <div>
+                <label for="{{ form.title.id_for_label }}">
+                    {{ form.title.label }}
+                </label>
+
+                {{ form.title }}
+
+                {% for error in form.title.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="{{ form.text.id_for_label }}">
+                    {{ form.text.label }}
+                </label>
+
+                {{ form.text }}
+
+                {% for error in form.text.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Карточкалар жасау</button>
+        </form>
+
+        {% if sources %}
+            <section>
+                <h2>Сақталған конспектілер</h2>
+
+                <ul>
+                    {% for source in sources %}
+                        <li>
+                            <a href="{% url 'source_detail' pk=source.pk %}">
+                                {{ source.title }}
+                            </a>
+                            · {{ source.created_at }} · {{ source.generation_mode }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+    </main>
+
+</body>
+</html>

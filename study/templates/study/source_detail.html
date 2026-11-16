@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ source.title }} · Teach Me</title>
+</head>
+<body>
+
+    <main>
+        <p>
+            <a href="{% url 'home' %}">← Басты бет</a>
+        </p>
+
+        <h1>{{ source.title }}</h1>
+
+        <p>
+            Режим: {{ source.generation_mode }} ·
+            Құрылған уақыты: {{ source.created_at }}
+        </p>
+
+        <section>
+            <h2>Карточкалар</h2>
+
+            {% for card in cards %}
+                <article>
+                    <h3>{{ card.position }}. {{ card.question }}</h3>
+                    <details>
+                        <summary>Жауапты көрсету</summary>
+                        <p>{{ card.answer }}</p>
+                        <blockquote>{{ card.source_quote }}</blockquote>
+                    </details>
+                </article>
+            {% empty %}
+                <p>Бұл конспектіде карточкалар жоқ.</p>
+            {% endfor %}
+        </section>
+    </main>
+
+</body>
+</html>
