@@ -4,64 +4,302 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teach Me</title>
+    <style>
+        :root {
+            --paper: #f4f1ea;
+            --card: #ffffff;
+            --ink: #1f2422;
+            --muted: #6b7069;
+            --accent: #2f5d50;
+            --accent-soft: #dcece4;
+            --pending: #b45309;
+            --pending-soft: #fbeed9;
+            --danger: #b3261e;
+            --danger-soft: #fbe3e1;
+            --line: #e3ded2;
+            --shadow: 0 1px 2px rgba(31, 36, 34, 0.05),
+                      0 8px 24px rgba(31, 36, 34, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 40px 20px 72px;
+        }
+
+        .masthead {
+            margin: 0 0 28px;
+        }
+        .masthead h1 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            font-size: clamp(1.8rem, 4.5vw, 2.4rem);
+            letter-spacing: -0.01em;
+            margin: 0 0 10px;
+            line-height: 1.2;
+        }
+        .meta {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+        .mode-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+        .mode-tag.demo { background: var(--pending-soft); color: var(--pending); }
+
+        .section-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.15rem;
+            margin: 36px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        form.create {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+        }
+
+        form.create .nonfield {
+            margin-bottom: 18px;
+            background: var(--danger-soft);
+            border: 1px solid #f1c6c2;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: var(--danger);
+            font-size: 0.88rem;
+        }
+        form.create .nonfield p { margin: 0; }
+        form.create .nonfield p + p { margin-top: 4px; }
+
+        .field { margin-bottom: 18px; }
+        .field:last-of-type { margin-bottom: 22px; }
+
+        .field label {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .field input[type="text"],
+        .field textarea {
+            width: 100%;
+            font: inherit;
+            font-size: 0.95rem;
+            color: var(--ink);
+            background: #fdfcf8;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 10px 12px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .field input[type="text"]:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .field textarea {
+            min-height: 220px;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+
+        .field .errors {
+            margin-top: 8px;
+            background: var(--danger-soft);
+            border: 1px solid #f1c6c2;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: var(--danger);
+            font-size: 0.88rem;
+        }
+        .field .errors p { margin: 0; }
+        .field .errors p + p { margin-top: 4px; }
+
+        button.submit {
+            font: inherit;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            background: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 11px 24px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        button.submit:hover { filter: brightness(1.08); }
+        button.submit:active { filter: brightness(0.95); }
+
+        .sources-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sources-list li {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--muted);
+            border-radius: 4px;
+            padding: 14px 18px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+        .sources-list li:hover {
+            border-left-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .sources-list a.source-link {
+            display: block;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--ink);
+            text-decoration: none;
+            margin-bottom: 4px;
+            line-height: 1.35;
+        }
+        .sources-list a.source-link:hover { color: var(--accent); }
+
+        .sources-list .row-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 14px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .sources-list .row-meta span::before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            background: var(--line);
+        }
+
+        @media (max-width: 520px) {
+            main { padding: 28px 14px 56px; }
+        }
+    </style>
 </head>
 <body>
 
     <main>
-        <h1>Teach Me</h1>
-
-        <span>
-            {{ mode|upper }} ·
-            {% if mode == 'demo' %}
-                дайын мысал
-            {% else %}
-                нақты режим
-            {% endif %}
-        </span>
-
-        <form method="post">
-            {% csrf_token %}
-
-            {{ form.non_field_errors }}
-
-            <div>
-                <label for="{{ form.title.id_for_label }}">
-                    {{ form.title.label }}
-                </label>
-
-                {{ form.title }}
-
-                {% for error in form.title.errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
+        <header class="masthead">
+            <h1>Teach Me</h1>
+            <div class="meta">
+                <span class="mode-tag {% if mode == 'demo' %}demo{% endif %}">{{ mode|upper }}</span>
+                <span>
+                    {% if mode == 'demo' %}
+                        дайын мысал
+                    {% else %}
+                        нақты режим
+                    {% endif %}
+                </span>
             </div>
+        </header>
 
-            <div>
-                <label for="{{ form.text.id_for_label }}">
-                    {{ form.text.label }}
-                </label>
+        <section>
+            <h2 class="section-title">Жаңа конспект</h2>
 
-                {{ form.text }}
+            <form class="create" method="post" novalidate>
+                {% csrf_token %}
 
-                {% for error in form.text.errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            </div>
+                {% if form.non_field_errors %}
+                    <div class="nonfield">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-            <button type="submit">Карточкалар жасау</button>
-        </form>
+                <div class="field">
+                    <label for="{{ form.title.id_for_label }}">
+                        {{ form.title.label }}
+                    </label>
+
+                    {{ form.title }}
+
+                    {% if form.title.errors %}
+                        <div class="errors">
+                            {% for error in form.title.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.text.id_for_label }}">
+                        {{ form.text.label }}
+                    </label>
+
+                    {{ form.text }}
+
+                    {% if form.text.errors %}
+                        <div class="errors">
+                            {% for error in form.text.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button class="submit" type="submit">Карточкалар жасау</button>
+            </form>
+        </section>
 
         {% if sources %}
             <section>
-                <h2>Сақталған конспектілер</h2>
+                <h2 class="section-title">Сақталған конспектілер</h2>
 
-                <ul>
+                <ul class="sources-list">
                     {% for source in sources %}
                         <li>
-                            <a href="{% url 'source_detail' pk=source.pk %}">
+                            <a class="source-link" href="{% url 'source_detail' pk=source.pk %}">
                                 {{ source.title }}
                             </a>
-                            · {{ source.created_at }} · {{ source.generation_mode }}
+                            <div class="row-meta">
+                                <span>{{ source.created_at }}</span>
+                                <span>{{ source.generation_mode }}</span>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>

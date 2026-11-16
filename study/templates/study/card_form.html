@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточканы өңдеу · Teach Me</title>
+    <style>
+        :root {
+            --paper: #f4f1ea;
+            --card: #ffffff;
+            --ink: #1f2422;
+            --muted: #6b7069;
+            --accent: #2f5d50;
+            --accent-soft: #dcece4;
+            --pending: #b45309;
+            --pending-soft: #fbeed9;
+            --danger: #b3261e;
+            --danger-soft: #fbe3e1;
+            --line: #e3ded2;
+            --shadow: 0 1px 2px rgba(31, 36, 34, 0.05),
+                      0 8px 24px rgba(31, 36, 34, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 32px 20px 72px;
+        }
+
+        a.back {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 6px 0;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s ease;
+        }
+        a.back:hover { border-color: var(--accent); }
+
+        .masthead {
+            margin: 18px 0 28px;
+        }
+        .masthead h1 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            letter-spacing: -0.01em;
+            margin: 0 0 10px;
+            line-height: 1.2;
+        }
+        .meta {
+            color: var(--muted);
+            font-size: 0.86rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+        }
+        .meta span::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            background: var(--line);
+        }
+
+        .section-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.15rem;
+            margin: 36px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .reference {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--muted);
+            border-radius: 4px;
+            padding: 6px 18px;
+            box-shadow: var(--shadow);
+            font-size: 0.92rem;
+        }
+        .ref-item { padding: 10px 0; }
+        .ref-item + .ref-item { border-top: 1px dashed var(--line); }
+        .ref-label {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .ref-item p { margin: 0; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; }
+        .ref-item blockquote {
+            margin: 0;
+            padding: 8px 12px;
+            border-left: 3px solid var(--line);
+            background: #faf8f3;
+            color: var(--muted);
+            font-style: italic;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        form.edit {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            padding: 20px 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .field { margin-bottom: 18px; }
+        .field:last-of-type { margin-bottom: 22px; }
+
+        .field label {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .field input[type="text"],
+        .field textarea {
+            width: 100%;
+            font: inherit;
+            font-size: 0.95rem;
+            color: var(--ink);
+            background: #fdfcf8;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 10px 12px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .field input[type="text"]:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .field textarea {
+            min-height: 120px;
+            resize: vertical;
+            white-space: pre-wrap;
+        }
+
+        .field .errors,
+        form.edit .nonfield {
+            margin-top: 8px;
+            background: var(--danger-soft);
+            border: 1px solid #f1c6c2;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: var(--danger);
+            font-size: 0.88rem;
+        }
+        .field .errors p,
+        form.edit .nonfield p { margin: 0; }
+        .field .errors p + p,
+        form.edit .nonfield p + p { margin-top: 4px; }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            border-top: 1px solid var(--line);
+            padding-top: 18px;
+        }
+
+        button.save {
+            font: inherit;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            background: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 10px 22px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        button.save:hover { filter: brightness(1.08); }
+        button.save:active { filter: brightness(0.95); }
+
+        a.cancel {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 10px 4px;
+            border-bottom: 1px solid transparent;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+        a.cancel:hover {
+            color: var(--ink);
+            border-color: var(--line);
+        }
+
+        .note {
+            margin: 14px 0 0;
+            font-size: 0.84rem;
+            color: var(--pending);
+            background: var(--pending-soft);
+            border: 1px solid #f0dcb6;
+            border-radius: 4px;
+            padding: 8px 12px;
+        }
+
+        @media (max-width: 520px) {
+            main { padding: 24px 14px 56px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <p>
+            <a class="back" href="{% url 'source_detail' card.source.pk %}">← {{ card.source.title }}</a>
+        </p>
+
+        <header class="masthead">
+            <h1>Карточканы өңдеу</h1>
+            <div class="meta">
+                <span>№{{ card.position }}</span>
+                <span>Конспект: {{ card.source.title }}</span>
+                <span>
+                    Күйі:
+                    {% if card.is_verified %}
+                        Тексерілді
+                    {% else %}
+                        Тексеру керек
+                    {% endif %}
+                </span>
+            </div>
+        </header>
+
+        <section>
+            <h2 class="section-title">Ағымдағы мәтін (салыстыру үшін)</h2>
+            <div class="reference">
+                <div class="ref-item">
+                    <span class="ref-label">{{ form.question.label }}</span>
+                    <p>{{ card.question }}</p>
+                </div>
+                <div class="ref-item">
+                    <span class="ref-label">{{ form.answer.label }}</span>
+                    <p>{{ card.answer }}</p>
+                </div>
+                <div class="ref-item">
+                    <span class="ref-label">{{ form.source_quote.label }}</span>
+                    <blockquote>{{ card.source_quote }}</blockquote>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">Өңдеу</h2>
+
+            <form class="edit" method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="nonfield">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="field">
+                    <label for="{{ form.question.id_for_label }}">{{ form.question.label }}</label>
+                    {{ form.question }}
+                    {% if form.question.errors %}
+                        <div class="errors">
+                            {% for error in form.question.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.answer.id_for_label }}">{{ form.answer.label }}</label>
+                    {{ form.answer }}
+                    {% if form.answer.errors %}
+                        <div class="errors">
+                            {% for error in form.answer.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.source_quote.id_for_label }}">{{ form.source_quote.label }}</label>
+                    {{ form.source_quote }}
+                    {% if form.source_quote.errors %}
+                        <div class="errors">
+                            {% for error in form.source_quote.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="actions">
+                    <button class="save" type="submit">Сақтау</button>
+                    <a class="cancel" href="{% url 'source_detail' card.source.pk %}">Бас тарту</a>
+                </div>
+
+                <p class="note">Сақтағаннан кейін бұл карточка қайта тексеруді қажет етеді — күйі «Тексеру керек» болып қайтады.</p>
+            </form>
+        </section>
+    </main>
+
+</body>
+</html>

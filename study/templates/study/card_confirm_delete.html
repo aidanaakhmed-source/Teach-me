@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточканы өшіру · Teach Me</title>
+    <style>
+        :root {
+            --paper: #f4f1ea;
+            --card: #ffffff;
+            --ink: #1f2422;
+            --muted: #6b7069;
+            --accent: #2f5d50;
+            --accent-soft: #dcece4;
+            --danger: #b3261e;
+            --danger-soft: #fbe3e1;
+            --line: #e3ded2;
+            --shadow: 0 1px 2px rgba(31, 36, 34, 0.05),
+                      0 8px 24px rgba(31, 36, 34, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        main {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 32px 20px 72px;
+        }
+
+        a.back {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 6px 0;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s ease;
+        }
+        a.back:hover { border-color: var(--accent); }
+
+        .masthead {
+            margin: 18px 0 26px;
+        }
+        .masthead h1 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            letter-spacing: -0.01em;
+            margin: 0 0 10px;
+            line-height: 1.2;
+            color: var(--danger);
+        }
+        .meta {
+            color: var(--muted);
+            font-size: 0.86rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+        }
+        .meta span::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            background: var(--line);
+        }
+
+        .section-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.15rem;
+            margin: 32px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .question-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--danger);
+            border-radius: 4px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .question-card .num {
+            display: inline-block;
+            min-width: 1.6em;
+            color: var(--muted);
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+
+        .warning {
+            margin: 22px 0;
+            background: var(--danger-soft);
+            border: 1px solid #f1c6c2;
+            border-left: 4px solid var(--danger);
+            border-radius: 4px;
+            padding: 14px 18px;
+            font-size: 0.92rem;
+            color: var(--danger);
+        }
+        .warning strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        form { display: inline; margin: 0; }
+
+        button.danger {
+            font: inherit;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #ffffff;
+            background: var(--danger);
+            border: 1px solid var(--danger);
+            border-radius: 4px;
+            padding: 10px 22px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        button.danger:hover { filter: brightness(1.08); }
+        button.danger:active { filter: brightness(0.95); }
+
+        a.cancel {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 10px 4px;
+            border-bottom: 1px solid transparent;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+        a.cancel:hover {
+            color: var(--ink);
+            border-color: var(--line);
+        }
+
+        @media (max-width: 520px) {
+            main { padding: 24px 14px 56px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <p>
+            <a class="back" href="{% url 'source_detail' card.source.pk %}">← {{ card.source.title }}</a>
+        </p>
+
+        <header class="masthead">
+            <h1>Карточканы өшіру</h1>
+            <div class="meta">
+                <span>№{{ card.position }}</span>
+                <span>Конспект: {{ card.source.title }}</span>
+            </div>
+        </header>
+
+        <section>
+            <h2 class="section-title">Сұрақ</h2>
+            <div class="question-card">
+                <span class="num">{{ card.position }}.</span>{{ card.question }}
+            </div>
+        </section>
+
+        <div class="warning">
+            <strong>Бұл әрекетті кері қайтару мүмкін емес.</strong>
+            Карточка біржола жойылады. Конспект және қалған карточкалар өзгермейді; өшірілген карточканың орны бос қалады, қалған карточкалардың нөмірлері қайта реттелмейді.
+        </div>
+
+        <div class="actions">
+            <form method="post">
+                {% csrf_token %}
+                <button class="danger" type="submit">Иә, өшіру</button>
+            </form>
+            <a class="cancel" href="{% url 'source_detail' card.source.pk %}">Бас тарту</a>
+        </div>
+    </main>
+
+</body>
+</html>

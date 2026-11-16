@@ -4,36 +4,511 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ source.title }} · Teach Me</title>
+    <style>
+        :root {
+            --paper: #f4f1ea;
+            --card: #ffffff;
+            --ink: #1f2422;
+            --muted: #6b7069;
+            --accent: #2f5d50;
+            --accent-soft: #dcece4;
+            --pending: #b45309;
+            --pending-soft: #fbeed9;
+            --danger: #b3261e;
+            --danger-soft: #fbe3e1;
+            --line: #e3ded2;
+            --shadow: 0 1px 2px rgba(31, 36, 34, 0.05),
+                      0 8px 24px rgba(31, 36, 34, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        main {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 32px 20px 72px;
+        }
+
+        a.back {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 6px 0;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s ease;
+        }
+        a.back:hover { border-color: var(--accent); }
+
+        .masthead {
+            margin: 18px 0 28px;
+        }
+        .masthead h1 {
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            letter-spacing: -0.01em;
+            margin: 0 0 10px;
+            line-height: 1.2;
+        }
+        .meta {
+            color: var(--muted);
+            font-size: 0.86rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+        }
+        .meta span::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            background: var(--line);
+        }
+
+        .section-title {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.15rem;
+            margin: 36px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .context-block {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            padding: 18px 20px;
+            font-size: 0.96rem;
+            color: #2b302d;
+            box-shadow: var(--shadow);
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 14px 0 22px;
+        }
+        .filter-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: none;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 6px 14px;
+            box-shadow: var(--shadow);
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .filter-link:hover {
+            color: var(--ink);
+            border-color: #cfc9bb;
+        }
+        .filter-link .count {
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--ink);
+        }
+        .filter-link .count.accent { color: var(--accent); }
+        .filter-link .count.pending { color: var(--pending); }
+
+        .filter-link.is-active {
+            color: #ffffff;
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .filter-link.is-active .count { color: #ffffff; }
+        .filter-link.is-active.pending-active {
+            background: var(--pending);
+            border-color: var(--pending);
+        }
+
+        .progress {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: stretch;
+            margin: 14px 0 18px;
+        }
+        .stat {
+            flex: 1 1 150px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 14px 16px;
+            box-shadow: var(--shadow);
+        }
+        .stat .label {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        .stat .value {
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+        .stat.accent .value { color: var(--accent); }
+        .stat.pending .value { color: var(--pending); }
+
+        .review-hint {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0 0 18px;
+            padding: 10px 14px;
+            background: #faf8f3;
+            border: 1px dashed var(--line);
+            border-radius: 4px;
+        }
+
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--pending);
+            border-radius: 4px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+        .card:hover { transform: translateY(-1px); }
+        .card.is-verified { border-left-color: var(--accent); }
+
+        .card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .card-head h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--ink);
+        }
+        .card-head h3 .num {
+            display: inline-block;
+            min-width: 1.6em;
+            color: var(--muted);
+            font-family: Georgia, "Times New Roman", serif;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+
+        .card-aside {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .pill {
+            flex-shrink: 0;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+            background: var(--pending-soft);
+            color: var(--pending);
+        }
+        .is-verified .pill {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .card-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        .card-links a {
+            color: var(--accent);
+            text-decoration: none;
+            padding: 2px 0;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s ease, color 0.15s ease;
+        }
+        .card-links a:hover { border-color: var(--accent); }
+        .card-links a.edit-link::after { content: " →"; font-weight: 700; }
+        .card-links a.delete-link { color: var(--danger); }
+        .card-links a.delete-link:hover { border-color: var(--danger); }
+        .card-links a.delete-link::after { content: " ✕"; font-weight: 700; }
+
+        details.answer {
+            border-top: 1px dashed var(--line);
+            padding-top: 10px;
+        }
+        details.answer summary {
+            cursor: pointer;
+            list-style: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--accent);
+            padding: 4px 0;
+            user-select: none;
+        }
+        details.answer summary::-webkit-details-marker { display: none; }
+        details.answer summary::before {
+            content: "▸";
+            display: inline-block;
+            width: 1em;
+            transition: transform 0.15s ease;
+        }
+        details.answer[open] summary::before { transform: rotate(90deg); }
+
+        details.answer .body {
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+        details.answer .body > p {
+            margin: 0 0 12px;
+        }
+        details.answer blockquote {
+            margin: 0;
+            padding: 10px 14px;
+            border-left: 3px solid var(--line);
+            background: #faf8f3;
+            color: var(--muted);
+            font-style: italic;
+            font-size: 0.9rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .review-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--line);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .review-actions form { margin: 0; }
+
+        button.verify {
+            font: inherit;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        button.verify:hover { filter: brightness(1.08); }
+        button.verify:active { filter: brightness(0.95); }
+
+        button.reset {
+            font: inherit;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--pending);
+            background: transparent;
+            border: 1px solid var(--pending);
+            border-radius: 4px;
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        button.reset:hover { background: var(--pending-soft); }
+        button.reset:active { background: #f6e2c4; }
+
+        .empty {
+            padding: 28px 20px;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed var(--line);
+            border-radius: 4px;
+            background: var(--card);
+        }
+        .empty strong {
+            display: block;
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+        }
+        .empty a.reset-filter {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s ease;
+        }
+        .empty a.reset-filter:hover { border-color: var(--accent); }
+
+        @media (max-width: 520px) {
+            main { padding: 24px 14px 56px; }
+            .card-head { flex-direction: column; align-items: flex-start; }
+            .card-aside { flex-direction: row; align-items: center; flex-wrap: wrap; }
+        }
+    </style>
 </head>
 <body>
 
     <main>
         <p>
-            <a href="{% url 'home' %}">← Басты бет</a>
+            <a class="back" href="{% url 'home' %}">← Басты бет</a>
         </p>
 
-        <h1>{{ source.title }}</h1>
-
-        <p>
-            Режим: {{ source.generation_mode }} ·
-            Құрылған уақыты: {{ source.created_at }}
-        </p>
+        <header class="masthead">
+            <h1>{{ source.title }}</h1>
+            <div class="meta">
+                <span>Режим: {{ source.generation_mode }}</span>
+                <span>Құрылған уақыты: {{ source.created_at }}</span>
+            </div>
+        </header>
 
         <section>
-            <h2>Карточкалар</h2>
+            <h2 class="section-title">Конспект</h2>
+            <div class="context-block">{{ source.text|linebreaksbr }}</div>
+        </section>
 
-            {% for card in cards %}
-                <article>
-                    <h3>{{ card.position }}. {{ card.question }}</h3>
-                    <details>
-                        <summary>Жауапты көрсету</summary>
-                        <p>{{ card.answer }}</p>
-                        <blockquote>{{ card.source_quote }}</blockquote>
-                    </details>
-                </article>
-            {% empty %}
-                <p>Бұл конспектіде карточкалар жоқ.</p>
-            {% endfor %}
+        <section>
+            <h2 class="section-title">Карточкалар</h2>
+
+            <div class="progress">
+                <div class="stat accent">
+                    <span class="label">Тексерілді</span>
+                    <span class="value">{{ verified_count }} / {{ total_count }}</span>
+                </div>
+                <div class="stat pending">
+                    <span class="label">Қалды</span>
+                    <span class="value">{{ pending_count }}</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Барлығы</span>
+                    <span class="value">{{ total_count }}</span>
+                </div>
+            </div>
+
+            <nav class="filters" aria-label="Сүзгі">
+                <a class="filter-link {% if status == 'all' %}is-active{% endif %}"
+                   href="{% url 'source_detail' pk=source.pk %}?status=all">
+                    Барлығы (<span class="count">{{ total_count }}</span>)
+                </a>
+                <a class="filter-link pending-active {% if status == 'pending' %}is-active{% endif %}"
+                   href="{% url 'source_detail' pk=source.pk %}?status=pending">
+                    Тексеру керек (<span class="count pending">{{ pending_count }}</span>)
+                </a>
+                <a class="filter-link {% if status == 'verified' %}is-active{% endif %}"
+                   href="{% url 'source_detail' pk=source.pk %}?status=verified">
+                    Тексерілген (<span class="count accent">{{ verified_count }}</span>)
+                </a>
+            </nav>
+
+            <p class="review-hint">
+                Тексеруді студент өзі жасайды: сұрақ, жауап және дәйексөзді конспект мәтінімен салыстырып оқып шығыңыз. Автоматты тексеру жоқ.
+            </p>
+
+            <div class="cards">
+                {% for card in cards %}
+                    <article class="card {% if card.is_verified %}is-verified{% endif %}">
+                        <div class="card-head">
+                            <h3><span class="num">{{ card.position }}.</span>{{ card.question }}</h3>
+                            <div class="card-aside">
+                                <span class="pill">
+                                    {% if card.is_verified %}
+                                        Тексерілді
+                                    {% else %}
+                                        Тексеру керек
+                                    {% endif %}
+                                </span>
+                                <div class="card-links">
+                                    <a class="edit-link" href="{% url 'card_edit' card.pk %}">Өңдеу</a>
+                                    <a class="delete-link" href="{% url 'card_delete' card.pk %}">Өшіру</a>
+                                </div>
+                            </div>
+                        </div>
+                        <details class="answer">
+                            <summary>Жауапты көрсету</summary>
+                            <div class="body">
+                                <p>{{ card.answer }}</p>
+                                <blockquote>{{ card.source_quote }}</blockquote>
+                            </div>
+                        </details>
+                        <div class="review-actions">
+                            {% if card.is_verified %}
+                                <form method="post" action="{% url 'card_review' card.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reset">
+                                    <button class="reset" type="submit">Тексеруге қайтару</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'card_review' card.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="verify">
+                                    <button class="verify" type="submit">Карточканы тексердім</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% empty %}
+                    {% if total_count == 0 %}
+                        <div class="empty">
+                            <strong>Бұл конспектіде карточкалар жоқ.</strong>
+                            Барлық карточкалар өшірілген немесе әлі жасалмаған. Жоғарыдағы конспект мәтіні сақталып тұр — қажет болса, жаңа конспект жасап, карточкаларды қайта генерациялауға болады.
+                        </div>
+                    {% else %}
+                        <div class="empty">
+                            <strong>Бұл сүзгіге сәйкес карточка жоқ.</strong>
+                            {% if status == 'pending' %}
+                                Барлық карточкалар тексерілген.
+                            {% elif status == 'verified' %}
+                                Әзірге тексерілген карточка жоқ.
+                            {% endif %}
+                            <br>
+                            <a class="reset-filter" href="{% url 'source_detail' pk=source.pk %}?status=all">Барлығын көрсету →</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </section>
     </main>
 
